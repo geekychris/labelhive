@@ -236,11 +236,13 @@ postgres-57c4c5678d-mrbr2   1/1     Running   0             56s
 
 The frontend is on `NodePort 30009`. The backend is ClusterIP — exposed
 only through nginx (or via `port-forward` for direct API debugging).
+Avoid host-port `8081` for the forward — it's where devportal's own
+Java backend listens.
 
 ```sh
 # Demo seeder ran? (4 users + 6 jobs = 7 with bbox added)
-kubectl -n labelhive port-forward svc/backend 8081:8080 &
-curl -s -H 'X-User-Id: demo' http://localhost:8081/api/jobs | jq -r '.[] | "#\(.id) \(.name)"'
+kubectl -n labelhive port-forward svc/backend 8088:8080 &
+curl -s -H 'X-User-Id: demo' http://localhost:8088/api/jobs | jq -r '.[] | "#\(.id) \(.name)"'
 # #1 Search relevance — AI tooling queries
 # #2 Is this image AI-generated?
 # #3 Find the dogs
