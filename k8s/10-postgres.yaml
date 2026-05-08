@@ -51,14 +51,12 @@ metadata:
   name: postgres
   namespace: labelhive
 spec:
-  type: NodePort
+  # Internal-only — only the backend talks to Postgres.
+  type: ClusterIP
   selector:
     app: postgres
   ports:
     - name: postgres
       port: 5432
       targetPort: 5432
-      # devportal-allocated NodePort (see runtime.ports[postgres] in devportal.yaml).
-      # Replace with the value returned by `mcp__devportal__allocate_ports(scope=k8s-nodeport)`.
-      nodePort: 30102
       protocol: TCP

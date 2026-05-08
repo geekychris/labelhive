@@ -40,6 +40,6 @@ spec:
     - name: http
       port: 80
       targetPort: 80
-      # devportal-allocated NodePort (runtime.ports[frontend-http]).
-      nodePort: 30101
+      # devportal-allocated NodePort (slot 'http', scope k8s-nodeport).
+      nodePort: 30009
       protocol: TCP

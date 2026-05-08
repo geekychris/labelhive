@@ -62,13 +62,13 @@ metadata:
   name: backend
   namespace: labelhive
 spec:
-  type: NodePort
+  # Internal-only — the frontend nginx proxies /api and /mcp to this service.
+  # Bypass via `kubectl port-forward svc/backend 8080:8080` if you need direct API access.
+  type: ClusterIP
   selector:
     app: backend
   ports:
     - name: http
       port: 8080
       targetPort: 8080
-      # devportal-allocated NodePort (runtime.ports[backend-http]).
-      nodePort: 30100
       protocol: TCP

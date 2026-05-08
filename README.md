@@ -199,12 +199,18 @@ Reset by dropping the database and restarting; the seeder is idempotent
 
 ## Deploy to Kubernetes (devportal-managed)
 
-The repo ships with a `devportal.yaml` declaring port slots, fixtures, and
-build/run commands; matching `Dockerfile`s and `k8s/` manifests are
-included. The default NodePorts are placeholders (`30100/30101/30102`) so
-you can boot a single-node cluster immediately; once registered with the
-portal, run `mcp__devportal__allocate_ports` and update the `nodePort:`
-values to whatever the portal hands back.
+The repo ships with a `devportal.yaml`, matching `Dockerfile`s, and a `k8s/`
+manifest set. devportal allocated a single externally-visible HTTP slot:
+
+| Scope | Slot | Port |
+|---|---|---|
+| `k8s-nodeport` | `http` | **30009** — `frontend` Service NodePort |
+| `local` | `http` | **18011** — for `docker run -p 18011:80 labelhive/frontend:latest` |
+
+In-cluster the **frontend nginx** proxies `/api` and `/mcp` to the
+internal `backend` ClusterIP service, and `backend` talks to a ClusterIP
+`postgres` service. Only the frontend exposes a NodePort — so the cluster
+surface is minimal and the demo URL is `http://<node-ip>:30009`.
 
 ```sh
 # 1. Build images (point Docker at the cluster's image cache for kind/minikube/k3d).
@@ -214,10 +220,14 @@ docker build -t labelhive/frontend:latest -f frontend/Dockerfile frontend
 # 2. Apply manifests.
 kubectl apply -f k8s/
 
-# 3. Wait for backend rollout and verify the demo seeder ran.
+# 3. Wait for the backend rollout and verify the demo seeder ran.
 kubectl -n labelhive rollout status deploy/backend
 kubectl -n labelhive port-forward svc/backend 8080:8080 &
 curl -s -H 'X-User-Id: demo' http://localhost:8080/api/jobs | jq 'length'  # → 6 demo jobs
+
+# 4. Open the UI through the allocated NodePort (or any ingress in front of the
+#    frontend service — nginx handles /api and /mcp proxying internally):
+open http://$(minikube ip):30009     # or: open http://localhost:30009 with kind/k3d port-mapped
 ```
 
 The backend pod boots with `SPRING_PROFILES_ACTIVE=debug` and
@@ -227,18 +237,18 @@ section): 4 demo users (`demo`/admin, `alice`/`bob`/`carol` workers) and 6
 jobs covering every built-in template type. The seeder is idempotent — it
 no-ops if any jobs already exist, so re-applies are safe.
 
-To register the asset with devportal once you've pushed to GitHub:
+The asset is already registered as **`labelhive`** (`owner: geekychris`) via:
 
 ```python
-mcp__devportal__register_from_github(fullName="<owner>/labelhive")
+mcp__devportal__register_from_github(fullName="geekychris/labelhive")
 mcp__devportal__allocate_ports(assetId="labelhive", scope="k8s-nodeport")
+# → port 30009 — wired into k8s/30-frontend.yaml
 mcp__devportal__allocate_ports(assetId="labelhive", scope="local")
+# → port 18011 — for `docker run -p 18011:80 labelhive/frontend:latest`
 ```
 
-The first call seeds the asset record from `devportal.yaml`. The
-allocate-ports calls return concrete numbers — drop them into
-`k8s/10-postgres.yaml`, `k8s/20-backend.yaml`, `k8s/30-frontend.yaml` (and
-`docker-compose.yml` for local Docker), commit, push.
+To shift to a new port range later: call `allocate_ports(..., reallocate=True)`
+and update the `nodePort:` value in `k8s/30-frontend.yaml`.
 
 To consume the shared Postgres meta-asset instead of bundling one, attach
 it as a runtime dependency:
