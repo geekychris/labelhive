@@ -28,10 +28,6 @@ spec:
       build: cd backend && mvn -DskipTests package
       package: cd backend && mvn -DskipTests package
       clean: cd backend && mvn clean
-      frontend-install: cd frontend && npm install
-      frontend-test: cd frontend && npm test
-      frontend-build: cd frontend && npm run build
-      sdk-install: cd sdk/python && pip install -e .
   docker:
     enabled: true
     dockerfile: backend/Dockerfile
@@ -53,15 +49,12 @@ spec:
       - name: backend-http
         protocol: tcp
         purpose: http
-        description: Spring Boot REST + MCP server (also serves /actuator and /mcp).
       - name: frontend-http
         protocol: tcp
         purpose: http
-        description: nginx serving the built React UI; proxies /api to backend.
       - name: postgres
         protocol: tcp
         purpose: db
-        description: Postgres 16 — units, judgments, jobs, trust.
     env:
       - name: DB_HOST
         default: postgres
@@ -88,28 +81,8 @@ spec:
         default: "true"
         description: |
           When true, populates a fresh database with demo users + 6 jobs covering
-          every template type. See the FIXTURES section below.
-  fixtures:
-    # The backend has a built-in demo seeder gated by datalabel.demo.seed-on-startup.
-    # Flip this on for any environment that should boot up populated. The seeder is
-    # idempotent — it no-ops if any jobs already exist.
-    demo-seed:
-      description: 6 demo jobs covering every built-in template type, plus 4 demo users.
-      env:
-        DATALABEL_DEMO_SEED_ON_STARTUP: "true"
-      command: "(no-op — seeder runs on backend start when env is set)"
-      seeds:
-        users: ["demo (ADMIN)", "alice", "bob", "carol"]
-        jobs:
-          - "Search relevance — AI tooling queries (NDCG)"
-          - "Is this image AI-generated?"
-          - "Keyword span annotation"
-          - "Sentiment on developer social posts"
-          - "Content moderation"
-          - "LLM answer factuality"
+          every template type — the demo-seed fixture (see docs/RUN.md).
   docs:
-    architecture: README.md
-    build: README.md
-    run: README.md
-    sdk: sdk/python/README.md
-    custom-types: docs/templates/CUSTOM_TYPE_TUTORIAL.md
+    architecture: docs/ARCHITECTURE.md
+    build: docs/BUILD.md
+    run: docs/RUN.md
