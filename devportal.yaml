@@ -86,3 +86,4 @@ spec:
     architecture: docs/ARCHITECTURE.md
     build: docs/BUILD.md
     run: docs/RUN.md
+    runbook: docs/TUTORIAL.md

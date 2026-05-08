@@ -10,12 +10,17 @@ scoring, auto-promotion of high-agreement labels, and templates ranging from
 multi-choice to span annotation. Spring Boot backend + React frontend, with
 both REST and MCP interfaces.
 
+> **First time here?** Read [**`docs/TUTORIAL.md`**](docs/TUTORIAL.md) — an
+> end-to-end walkthrough with screenshots covering admin and worker flows,
+> every template type, and the quality controls.
+
 ## What's in here
 
 ```
 backend/         Spring Boot 3 / Java 21 / JPA / Postgres / Flyway / Spring AI MCP server
 frontend/        Vite + React + TypeScript (Tailwind, TanStack Query, React Router)
 sdk/python/      Python SDK + 7 runnable examples
+docs/TUTORIAL.md End-to-end walkthrough with screenshots
 docs/templates/  Per-type tutorials and the custom-type SDK guide
 k8s/             Kubernetes manifests (namespace, postgres, backend, frontend)
 docker-compose.yml   Postgres for local dev
