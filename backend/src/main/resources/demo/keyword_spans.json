@@ -1,0 +1,47 @@
+{
+  "name": "Keyword span annotation",
+  "description": "Highlight the technical product / model / company names mentioned in each sentence.",
+  "templateType": "SPAN_ANNOTATION",
+  "templateConfig": {
+    "labels": ["PRODUCT", "MODEL", "COMPANY"],
+    "textField": "text"
+  },
+  "goldCadence": 3,
+  "minJudgments": 3,
+  "promoteAgreementMin": "0.85",
+  "autoPromoteToGold": true,
+  "units": [
+    {"externalId": "kw-1", "payload": {"text": "Anthropic shipped Claude 4.7 with a 1M-token context window."},
+     "goldAnswer": {"spans": [
+        {"start": 0, "end": 9, "label": "COMPANY"},
+        {"start": 19, "end": 29, "label": "MODEL"}
+     ]},
+     "goldExplanation": "'Anthropic' is the company; 'Claude 4.7' is the model."},
+
+    {"externalId": "kw-2", "payload": {"text": "OpenAI's GPT-5 was integrated into Microsoft Copilot last week."},
+     "goldAnswer": {"spans": [
+        {"start": 0, "end": 6, "label": "COMPANY"},
+        {"start": 9, "end": 14, "label": "MODEL"},
+        {"start": 35, "end": 52, "label": "PRODUCT"}
+     ]}},
+
+    {"externalId": "kw-3", "payload": {"text": "We migrated our vector store from Pinecone to pgvector after the pricing change."},
+     "goldAnswer": {"spans": [
+        {"start": 34, "end": 42, "label": "PRODUCT"},
+        {"start": 46, "end": 54, "label": "PRODUCT"}
+     ]}},
+
+    {"externalId": "kw-4", "payload": {"text": "Google released Gemini 3 Ultra to beta testers via the AI Studio."},
+     "goldAnswer": {"spans": [
+        {"start": 0, "end": 6, "label": "COMPANY"},
+        {"start": 16, "end": 30, "label": "MODEL"},
+        {"start": 56, "end": 65, "label": "PRODUCT"}
+     ]}},
+
+    {"externalId": "kw-u1", "payload": {"text": "Meta announced Llama 4 with native multimodal capabilities."}},
+    {"externalId": "kw-u2", "payload": {"text": "We use Claude Code with the Spring AI MCP server in production."}},
+    {"externalId": "kw-u3", "payload": {"text": "GitHub Copilot now ships with an agent mode powered by Claude Sonnet 4.6."}},
+    {"externalId": "kw-u4", "payload": {"text": "Mistral and Cohere both released fine-tuning APIs last month."}},
+    {"externalId": "kw-u5", "payload": {"text": "Vercel's v0 platform competes with Bolt and Lovable for AI app generation."}}
+  ]
+}

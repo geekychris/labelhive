@@ -1,0 +1,25 @@
+{
+  "name": "Sentiment on developer social posts",
+  "description": "Classify the sentiment of short developer-community posts (Bluesky / Mastodon style).",
+  "templateType": "MULTIPLE_CHOICE",
+  "templateConfig": {
+    "choices": ["positive", "neutral", "negative", "mixed"],
+    "allowMultiple": false
+  },
+  "goldCadence": 3,
+  "minJudgments": 3,
+  "units": [
+    {"externalId": "sent-1", "payload": {"text": "Just shipped my first MCP server in 30 minutes. The Spring AI starter is ridiculously smooth."}, "goldAnswer": {"choice": "positive"}},
+    {"externalId": "sent-2", "payload": {"text": "Wasted three hours fighting with hibernate jsonb columns. There has to be a better way."}, "goldAnswer": {"choice": "negative"}},
+    {"externalId": "sent-3", "payload": {"text": "The pgvector 1.0 release notes mention HNSW improvements."}, "goldAnswer": {"choice": "neutral"}},
+    {"externalId": "sent-4", "payload": {"text": "Love how fast Claude 4.7 is — but the rate limits on the cheap plan are brutal."}, "goldAnswer": {"choice": "mixed"}, "goldExplanation": "Praises speed AND complains about rate limits."},
+    {"externalId": "sent-5", "payload": {"text": "Spent the weekend reading AGENTS.md guides. Big fan of the convention."}, "goldAnswer": {"choice": "positive"}},
+    {"externalId": "sent-6", "payload": {"text": "Postmortem published: vector DB outage took down embeddings ingest for 4h."}, "goldAnswer": {"choice": "neutral"}, "goldExplanation": "Informational; no opinion."},
+
+    {"externalId": "sent-u1", "payload": {"text": "Anyone else seeing flaky tool calls on Sonnet 4.6 today?"}},
+    {"externalId": "sent-u2", "payload": {"text": "Migrated 12 services to OpenTelemetry over the weekend. Honestly delightful."}},
+    {"externalId": "sent-u3", "payload": {"text": "Why does every framework reinvent dependency injection."}},
+    {"externalId": "sent-u4", "payload": {"text": "Reading the new MCP spec changes. Solid additions for streaming tools."}},
+    {"externalId": "sent-u5", "payload": {"text": "First time using Vite — the dev server speed is genuinely a different sport."}}
+  ]
+}

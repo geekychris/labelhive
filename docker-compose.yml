@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: data-label-postgres
+    environment:
+      POSTGRES_DB: datalabel
+      POSTGRES_USER: datalabel
+      POSTGRES_PASSWORD: datalabel
+    ports:
+      # Map to 5433 on the host to avoid clashing with a local Postgres install.
+      - "5433:5432"
+    volumes:
+      - data-label-pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "datalabel"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  data-label-pg:

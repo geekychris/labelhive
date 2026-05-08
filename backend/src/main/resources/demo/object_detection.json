@@ -1,0 +1,54 @@
+{
+  "name": "Find the dogs",
+  "description": "Draw a tight bounding box around every dog in each image. If there are no dogs, leave the canvas empty. Use 'dog' for any dog and 'puppy' if it's clearly a puppy.",
+  "templateType": "BOUNDING_BOX",
+  "templateConfig": {
+    "labels": ["dog", "puppy"],
+    "imageField": "imageUrl"
+  },
+  "goldCadence": 4,
+  "minJudgments": 3,
+  "units": [
+    {
+      "externalId": "bbox-1",
+      "payload": {"imageUrl": "https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=800&h=600&fit=crop"},
+      "goldAnswer": {"boxes": [
+        {"x": 220, "y": 120, "w": 360, "h": 420, "label": "dog"}
+      ]},
+      "goldExplanation": "One labrador, centered. Tight box on the body — exclude grass.",
+      "exemplar": true
+    },
+    {
+      "externalId": "bbox-2",
+      "payload": {"imageUrl": "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=800&h=600&fit=crop"},
+      "goldAnswer": {"boxes": [
+        {"x": 80,  "y": 90,  "w": 280, "h": 360, "label": "dog"},
+        {"x": 420, "y": 110, "w": 300, "h": 380, "label": "dog"}
+      ]},
+      "goldExplanation": "Two adult dogs side by side — one box each, no overlap, even when their bodies touch.",
+      "exemplar": true
+    },
+    {
+      "externalId": "bbox-3",
+      "payload": {"imageUrl": "https://images.unsplash.com/photo-1561037404-61cd46aa615b?w=800&h=600&fit=crop"},
+      "goldAnswer": {"boxes": [
+        {"x": 260, "y": 200, "w": 240, "h": 220, "label": "puppy"}
+      ]},
+      "goldExplanation": "Small puppy — use the 'puppy' label, not 'dog'.",
+      "exemplar": true
+    },
+    {
+      "externalId": "bbox-4",
+      "payload": {"imageUrl": "https://images.unsplash.com/photo-1574144611937-0df059b5ef3e?w=800&h=600&fit=crop"},
+      "goldAnswer": {"boxes": []},
+      "goldExplanation": "No dogs in the frame — leave the answer empty rather than guessing."
+    },
+
+    {"externalId": "bbox-u1", "payload": {"imageUrl": "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800&h=600&fit=crop"}},
+    {"externalId": "bbox-u2", "payload": {"imageUrl": "https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=800&h=600&fit=crop"}},
+    {"externalId": "bbox-u3", "payload": {"imageUrl": "https://images.unsplash.com/photo-1477884213360-7e9d7dcc1e48?w=800&h=600&fit=crop"}},
+    {"externalId": "bbox-u4", "payload": {"imageUrl": "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=800&h=600&fit=crop"}},
+    {"externalId": "bbox-u5", "payload": {"imageUrl": "https://images.unsplash.com/photo-1558929996-da64ba858215?w=800&h=600&fit=crop"}},
+    {"externalId": "bbox-u6", "payload": {"imageUrl": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=800&h=600&fit=crop"}}
+  ]
+}

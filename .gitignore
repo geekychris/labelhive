@@ -1,0 +1,28 @@
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+frontend/node_modules/
+frontend/dist/
+.DS_Store
+*.iml
+.idea/
+.vscode/
+
+# Maven build wrapper artifacts
+backend/.mvn/wrapper/maven-wrapper.properties
+backend/.mvn/
+
+# Python venvs / build artifacts
+sdk/python/__pycache__/
+sdk/python/**/__pycache__/
+sdk/python/labelhive.egg-info/
+sdk/python/.venv/
+sdk/python/build/
+sdk/python/dist/
+
+# Local Postgres docker-compose volumes (the named volume lives outside the repo,
+# but just in case)
+backend/data/
+
+# OS / editor
+*.swp
+.AppleDouble

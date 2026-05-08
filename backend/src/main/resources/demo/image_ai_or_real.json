@@ -1,0 +1,27 @@
+{
+  "name": "Is this image AI-generated?",
+  "description": "A contemporary content-provenance task. Mark each image as photo, ai_generated, or unsure. Image URLs are placeholders for demo purposes.",
+  "templateType": "IMAGE_CLASSIFICATION",
+  "templateConfig": {
+    "imageField": "imageUrl",
+    "choices": ["photo", "ai_generated", "unsure"],
+    "allowMultiple": false
+  },
+  "goldCadence": 3,
+  "minJudgments": 3,
+  "units": [
+    {"externalId": "img-1", "payload": {"imageUrl": "https://picsum.photos/seed/labrador/600/400", "caption": "A labrador in tall grass"}, "goldAnswer": {"choice": "photo"}, "goldExplanation": "Stock photo source."},
+    {"externalId": "img-2", "payload": {"imageUrl": "https://picsum.photos/seed/midjourney_castle/600/400", "caption": "Castle on a cliff"}, "goldAnswer": {"choice": "ai_generated"}, "goldExplanation": "Stylized fantasy lighting and impossible geometry."},
+    {"externalId": "img-3", "payload": {"imageUrl": "https://picsum.photos/seed/coffee/600/400", "caption": "Latte art"}, "goldAnswer": {"choice": "photo"}},
+    {"externalId": "img-4", "payload": {"imageUrl": "https://picsum.photos/seed/sd_robot/600/400", "caption": "Robot reading a book"}, "goldAnswer": {"choice": "ai_generated"}},
+    {"externalId": "img-5", "payload": {"imageUrl": "https://picsum.photos/seed/streetscene/600/400", "caption": "Street market"}, "goldAnswer": {"choice": "photo"}},
+    {"externalId": "img-6", "payload": {"imageUrl": "https://picsum.photos/seed/dalle_underwater/600/400", "caption": "Underwater city"}, "goldAnswer": {"choice": "ai_generated"}},
+
+    {"externalId": "img-u1", "payload": {"imageUrl": "https://picsum.photos/seed/u1/600/400", "caption": "Sunset over mountains"}},
+    {"externalId": "img-u2", "payload": {"imageUrl": "https://picsum.photos/seed/u2/600/400", "caption": "Crowded plaza"}},
+    {"externalId": "img-u3", "payload": {"imageUrl": "https://picsum.photos/seed/u3/600/400", "caption": "Hand holding a glowing orb"}},
+    {"externalId": "img-u4", "payload": {"imageUrl": "https://picsum.photos/seed/u4/600/400", "caption": "Vintage typewriter"}},
+    {"externalId": "img-u5", "payload": {"imageUrl": "https://picsum.photos/seed/u5/600/400", "caption": "Astronaut in a forest"}},
+    {"externalId": "img-u6", "payload": {"imageUrl": "https://picsum.photos/seed/u6/600/400", "caption": "Person at a laptop"}}
+  ]
+}

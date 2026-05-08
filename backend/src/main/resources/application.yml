@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: data-label
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:datalabel}
+    username: ${DB_USER:datalabel}
+    password: ${DB_PASSWORD:datalabel}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate.format_sql: true
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  ai:
+    mcp:
+      server:
+        name: data-label-mcp
+        version: 0.1.0
+        type: SYNC
+
+server:
+  port: 8080
+
+datalabel:
+  # When true, security is bypassed and the user is resolved from the X-User-Id header.
+  # Flip to false (or run without the `debug` profile) once real auth is enabled.
+  debug-auth: false
+  demo:
+    seed-on-startup: false

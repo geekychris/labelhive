@@ -1,0 +1,9 @@
+datalabel:
+  debug-auth: true
+  demo:
+    seed-on-startup: true
+
+logging:
+  level:
+    com.datalabel: DEBUG
+    org.springframework.security: DEBUG

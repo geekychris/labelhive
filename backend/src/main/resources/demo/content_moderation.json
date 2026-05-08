@@ -1,0 +1,22 @@
+{
+  "name": "Content moderation — safe / borderline / unsafe",
+  "description": "Tag user-generated text for moderation queues.",
+  "templateType": "MULTIPLE_CHOICE",
+  "templateConfig": {
+    "choices": ["safe", "borderline", "unsafe"],
+    "allowMultiple": false
+  },
+  "goldCadence": 3,
+  "minJudgments": 3,
+  "units": [
+    {"externalId": "mod-1", "payload": {"text": "Recipe sharing thread: my grandma's lasagna, comments welcome."}, "goldAnswer": {"choice": "safe"}},
+    {"externalId": "mod-2", "payload": {"text": "I'm gonna find that streamer and make them regret it."}, "goldAnswer": {"choice": "unsafe"}, "goldExplanation": "Implied threat directed at a specific person."},
+    {"externalId": "mod-3", "payload": {"text": "Stupid take. Anyone who likes this product is an idiot."}, "goldAnswer": {"choice": "borderline"}, "goldExplanation": "Insulting but not targeting a protected group; warrants review, not removal."},
+    {"externalId": "mod-4", "payload": {"text": "Looking for advice on building a small terrarium."}, "goldAnswer": {"choice": "safe"}},
+
+    {"externalId": "mod-u1", "payload": {"text": "Their entire team should be fired immediately."}},
+    {"externalId": "mod-u2", "payload": {"text": "Tutorial: setting up TLS with Let's Encrypt."}},
+    {"externalId": "mod-u3", "payload": {"text": "I hate Mondays so much I could scream."}},
+    {"externalId": "mod-u4", "payload": {"text": "Another one of THOSE people pushing for that nonsense again."}}
+  ]
+}

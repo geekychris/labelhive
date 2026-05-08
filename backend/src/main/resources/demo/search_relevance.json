@@ -1,0 +1,35 @@
+{
+  "name": "Search relevance — AI tooling queries",
+  "description": "Grade how relevant a search result is to a developer query. Used to compute NDCG over each query's result list.",
+  "templateType": "SEARCH_RELEVANCE",
+  "templateConfig": {
+    "scale": [
+      {"label": "irrelevant", "grade": 0},
+      {"label": "related",    "grade": 1},
+      {"label": "relevant",   "grade": 2},
+      {"label": "perfect",    "grade": 3}
+    ],
+    "queryField": "queryId"
+  },
+  "goldCadence": 3,
+  "tasksPerPage": 4,
+  "minJudgments": 3,
+  "units": [
+    {"externalId": "q1-r1", "payload": {"queryId": "q1", "query": "best vector database for RAG in 2026", "result": {"title": "pgvector hits 1.0 — Postgres native vector search", "snippet": "pgvector finally reaches 1.0 with HNSW + IVFFlat...", "url": "https://example.test/pgvector-1"}}, "goldAnswer": {"grade": 3}, "goldExplanation": "Directly answers the query with a leading vector DB."},
+    {"externalId": "q1-r2", "payload": {"queryId": "q1", "query": "best vector database for RAG in 2026", "result": {"title": "How transformers changed NLP", "snippet": "An overview of attention since 2017...", "url": "https://example.test/transformer-history"}}, "goldAnswer": {"grade": 0}, "goldExplanation": "Off topic — this is NLP history."},
+    {"externalId": "q1-r3", "payload": {"queryId": "q1", "query": "best vector database for RAG in 2026", "result": {"title": "RAG patterns benchmarked", "snippet": "We benchmark Chroma, Qdrant, Weaviate, pgvector...", "url": "https://example.test/rag-bench"}}, "goldAnswer": {"grade": 2}},
+    {"externalId": "q1-r4", "payload": {"queryId": "q1", "query": "best vector database for RAG in 2026", "result": {"title": "Cooking with paprika", "snippet": "...", "url": "https://example.test/paprika"}}, "goldAnswer": {"grade": 0}},
+
+    {"externalId": "q2-r1", "payload": {"queryId": "q2", "query": "Claude Code custom slash commands", "result": {"title": "Authoring slash commands in Claude Code", "snippet": "Drop a .md file in .claude/commands and you get a slash command.", "url": "https://example.test/claude-slash"}}, "goldAnswer": {"grade": 3}},
+    {"externalId": "q2-r2", "payload": {"queryId": "q2", "query": "Claude Code custom slash commands", "result": {"title": "Claude API tool use overview", "snippet": "How to define tools in the Anthropic SDK", "url": "https://example.test/claude-api-tools"}}, "goldAnswer": {"grade": 1}, "goldExplanation": "Adjacent — also Claude tooling but not slash commands."},
+    {"externalId": "q2-r3", "payload": {"queryId": "q2", "query": "Claude Code custom slash commands", "result": {"title": "VS Code keyboard shortcut customization", "snippet": "Editing keybindings.json", "url": "https://example.test/vscode-keys"}}, "goldAnswer": {"grade": 0}},
+
+    {"externalId": "q3-r1", "payload": {"queryId": "q3", "query": "MCP server example Java", "result": {"title": "Spring AI MCP Server starter", "snippet": "Expose @Tool methods as MCP tools.", "url": "https://example.test/spring-ai-mcp"}}, "goldAnswer": {"grade": 3}},
+    {"externalId": "q3-r2", "payload": {"queryId": "q3", "query": "MCP server example Java", "result": {"title": "MCP TypeScript SDK", "snippet": "...", "url": "https://example.test/mcp-ts"}}, "goldAnswer": {"grade": 1}},
+    {"externalId": "q3-r3", "payload": {"queryId": "q3", "query": "MCP server example Java", "result": {"title": "Java 21 records cheat sheet", "snippet": "...", "url": "https://example.test/records"}}, "goldAnswer": {"grade": 0}},
+
+    {"externalId": "q1-r5-unlab", "payload": {"queryId": "q1", "query": "best vector database for RAG in 2026", "result": {"title": "When to skip RAG entirely (long context wins)", "snippet": "With 1M token context...", "url": "https://example.test/skip-rag"}}},
+    {"externalId": "q2-r4-unlab", "payload": {"queryId": "q2", "query": "Claude Code custom slash commands", "result": {"title": "Configuring Claude Code hooks", "snippet": "Hooks fire on tool events.", "url": "https://example.test/claude-hooks"}}},
+    {"externalId": "q3-r4-unlab", "payload": {"queryId": "q3", "query": "MCP server example Java", "result": {"title": "Building a Spring Boot REST API", "snippet": "...", "url": "https://example.test/spring-rest"}}}
+  ]
+}

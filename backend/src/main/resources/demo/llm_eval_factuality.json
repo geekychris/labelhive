@@ -1,0 +1,45 @@
+{
+  "name": "LLM answer factuality",
+  "description": "Given a question and an LLM-generated answer, judge whether the answer is factually accurate. Contemporary task — feeds RLHF-style evaluation.",
+  "templateType": "MULTIPLE_CHOICE",
+  "templateConfig": {
+    "choices": ["correct", "partially_correct", "incorrect", "unverifiable"],
+    "allowMultiple": false
+  },
+  "goldCadence": 3,
+  "minJudgments": 3,
+  "units": [
+    {"externalId": "fact-1", "payload": {
+        "question": "What does NDCG stand for?",
+        "answer": "Normalized Discounted Cumulative Gain — a ranking-quality metric that compares an ordering of results to the ideal ordering, discounting gains the further down the list they appear."},
+     "goldAnswer": {"choice": "correct"}},
+    {"externalId": "fact-2", "payload": {
+        "question": "What's the default port for PostgreSQL?",
+        "answer": "Postgres uses port 3306 by default."},
+     "goldAnswer": {"choice": "incorrect"},
+     "goldExplanation": "3306 is MySQL. Postgres defaults to 5432."},
+    {"externalId": "fact-3", "payload": {
+        "question": "How does pgvector's HNSW index handle inserts?",
+        "answer": "HNSW supports incremental inserts in pgvector; updates require deleting and reinserting the row."},
+     "goldAnswer": {"choice": "partially_correct"},
+     "goldExplanation": "Inserts are correctly described; the 'updates' bit is technically true but glosses over WAL behavior."},
+    {"externalId": "fact-4", "payload": {
+        "question": "Will Claude 5 be released this year?",
+        "answer": "Anthropic has confirmed a Q4 release."},
+     "goldAnswer": {"choice": "unverifiable"},
+     "goldExplanation": "Forward-looking, not in the public record."},
+
+    {"externalId": "fact-u1", "payload": {
+        "question": "Difference between BCrypt and Argon2?",
+        "answer": "Both are password hashing functions; Argon2 is the 2015 PHC winner and is generally preferred for new systems."}},
+    {"externalId": "fact-u2", "payload": {
+        "question": "Does Java 21 support virtual threads?",
+        "answer": "Yes — virtual threads are a stable feature in Java 21 (JEP 444)."}},
+    {"externalId": "fact-u3", "payload": {
+        "question": "Is Spring Boot 3.4 compatible with Java 17?",
+        "answer": "No — Spring Boot 3.4 requires Java 21 minimum."}},
+    {"externalId": "fact-u4", "payload": {
+        "question": "What's the largest context window currently available?",
+        "answer": "Several frontier models offer 1M-token context as of 2026."}}
+  ]
+}
