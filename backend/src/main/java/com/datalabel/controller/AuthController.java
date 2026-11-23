@@ -24,13 +24,9 @@ public class AuthController {
     public Map<String, Object> me(HttpServletRequest req) {
         AppUser u = currentUser.resolve(req);
         if (u == null) return Map.of("authenticated", false, "debug", currentUser.isDebugMode());
-        return Map.of(
-                "authenticated", true,
-                "debug", currentUser.isDebugMode(),
-                "id", u.getId(),
-                "username", u.getUsername(),
-                "role", u.getRole()
-        );
+        Map<String, Object> m = new java.util.LinkedHashMap<>(MeController.describe(u, currentUser.isDebugMode()));
+        m.put("authenticated", true);
+        return m;
     }
 
     /** Debug-only: list seeded users so the UI can offer a switcher. */

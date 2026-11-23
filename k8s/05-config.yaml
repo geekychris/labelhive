@@ -1,0 +1,18 @@
+# Site settings for the backend's OIDC sign-in. Edit for your site before
+# applying (cloud-stack's deploy/labelhive renders these per site instead).
+#
+# Two Secrets are NOT in git; create them once:
+#   kubectl -n labelhive create secret generic labelhive-db \
+#     --from-literal=username=datalabel --from-literal=password="$(openssl rand -hex 24)"
+#   kubectl -n labelhive create secret generic labelhive-oidc \
+#     --from-literal=client-secret='<the client secret registered with the login service>'
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: labelhive-oidc
+  namespace: labelhive
+data:
+  OIDC_ISSUER: https://auth.hitorro.com
+  # Server-to-server base URL (token, JWKS); defaults to the issuer.
+  OIDC_BACKCHANNEL_URL: https://auth.hitorro.com
+  OIDC_CLIENT_ID: labelhive

@@ -186,6 +186,10 @@ export interface Me {
   id?: number;
   username?: string;
   role?: 'ADMIN' | 'WORKER';
+  /** The login service's role names for this app: admin, labeler. */
+  roles?: string[];
+  name?: string;
+  email?: string;
 }
 
 export interface DebugUser { id: number; username: string; role: 'ADMIN' | 'WORKER' }

@@ -26,28 +26,22 @@ spec:
             - name: DB_PORT
               value: "5432"
             - name: DB_NAME
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-credentials
-                  key: POSTGRES_DB
+              value: datalabel
             - name: DB_USER
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-credentials
-                  key: POSTGRES_USER
+              valueFrom: {secretKeyRef: {name: labelhive-db, key: username}}
             - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-credentials
-                  key: POSTGRES_PASSWORD
+              valueFrom: {secretKeyRef: {name: labelhive-db, key: password}}
+            # OIDC sign-in against the site's login service (05-config.yaml).
             - name: SPRING_PROFILES_ACTIVE
-              value: "debug"
-            # devportal fixture — boot the demo seeder so a fresh cluster comes up
-            # populated with users + 6 jobs covering every template type.
-            - name: DATALABEL_DEMO_SEED_ON_STARTUP
-              value: "true"
-            - name: DATALABEL_DEBUG_AUTH
-              value: "true"
+              value: "deployed"
+            - name: OIDC_ISSUER
+              valueFrom: {configMapKeyRef: {name: labelhive-oidc, key: OIDC_ISSUER}}
+            - name: OIDC_BACKCHANNEL_URL
+              valueFrom: {configMapKeyRef: {name: labelhive-oidc, key: OIDC_BACKCHANNEL_URL}}
+            - name: OIDC_CLIENT_ID
+              valueFrom: {configMapKeyRef: {name: labelhive-oidc, key: OIDC_CLIENT_ID}}
+            - name: OIDC_CLIENT_SECRET
+              valueFrom: {secretKeyRef: {name: labelhive-oidc, key: client-secret}}
           readinessProbe:
             httpGet:
               path: /actuator/health

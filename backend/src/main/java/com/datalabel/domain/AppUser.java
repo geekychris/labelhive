@@ -21,6 +21,10 @@ public class AppUser {
     @Column(nullable = false, length = 16)
     private Role role;
 
+    /** OIDC `sub` of the cloud-stack login service; null for debug/demo users. */
+    @Column(name = "oidc_subject", unique = true, length = 128)
+    private String oidcSubject;
+
     @Column(name = "created_at", nullable = false, updatable = false, insertable = false)
     private Instant createdAt;
 }

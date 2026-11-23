@@ -37,6 +37,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 class EndToEndIT {
 
     private static final String EXTERNAL_URL = System.getenv("EXTERNAL_POSTGRES_URL");
+    private static final String EXTERNAL_USER = envOr("EXTERNAL_POSTGRES_USER", envOr("DB_USER", "datalabel"));
+    private static final String EXTERNAL_PASSWORD = envOr("EXTERNAL_POSTGRES_PASSWORD", envOr("DB_PASSWORD", ""));
+
+    private static String envOr(String name, String dflt) {
+        String v = System.getenv(name);
+        return v == null || v.isBlank() ? dflt : v;
+    }
     private static final PostgreSQLContainer<?> PG;
 
     static {
@@ -44,7 +51,8 @@ class EndToEndIT {
             PG = new PostgreSQLContainer<>("postgres:16-alpine")
                     .withDatabaseName("datalabel")
                     .withUsername("datalabel")
-                    .withPassword("datalabel");
+                    // Throwaway container: a random password, nothing to keep in git.
+                    .withPassword(UUID.randomUUID().toString());
             PG.start();
         } else {
             PG = null;
@@ -53,18 +61,21 @@ class EndToEndIT {
 
     @DynamicPropertySource
     static void props(DynamicPropertyRegistry r) {
+        // The OIDC client is configured but never contacted by these service-level tests.
+        r.add("datalabel.oidc.issuer", () -> "https://auth.example.test");
+        r.add("datalabel.oidc.client-secret", () -> "test-only-not-a-secret");
         if (EXTERNAL_URL != null) {
             // Use a fresh schema per test class to keep runs isolated.
             String schema = "it_" + UUID.randomUUID().toString().replace("-", "").substring(0, 12);
-            try (Connection c = DriverManager.getConnection(EXTERNAL_URL, "datalabel", "datalabel");
+            try (Connection c = DriverManager.getConnection(EXTERNAL_URL, EXTERNAL_USER, EXTERNAL_PASSWORD);
                  Statement st = c.createStatement()) {
                 st.executeUpdate("create schema " + schema);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
             r.add("spring.datasource.url", () -> EXTERNAL_URL + "?currentSchema=" + schema);
-            r.add("spring.datasource.username", () -> "datalabel");
-            r.add("spring.datasource.password", () -> "datalabel");
+            r.add("spring.datasource.username", () -> EXTERNAL_USER);
+            r.add("spring.datasource.password", () -> EXTERNAL_PASSWORD);
             r.add("spring.flyway.schemas", () -> schema);
             r.add("spring.flyway.default-schema", () -> schema);
         } else {

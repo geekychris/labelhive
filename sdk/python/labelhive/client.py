@@ -9,8 +9,9 @@ Auth model
 ----------
 LabelHive's debug profile resolves identity from an ``X-User-Id`` header (the
 value can be a numeric id or a username). Pass ``user="alice"`` and the
-client adds the header on every request. With real auth turned on, set
-``session_cookie=...`` instead.
+client adds the header on every request. Deployed instances sign users in
+with OpenID Connect and ignore the header; SDK use against them is pending
+(see docs/AUTH.md).
 
 Quickstart
 ----------
@@ -50,7 +51,9 @@ class LabelHive:
         Username (or numeric id) used in the ``X-User-Id`` header. Required for
         endpoints that resolve identity from the header (debug-auth profile).
     session_cookie:
-        Optional ``JSESSIONID`` cookie value for real-auth deployments.
+        Optional ``JSESSIONID`` cookie value (not enough for a deployed OIDC
+        instance yet: writes also need the CSRF token, and the site proxy its
+        own sign-in; see docs/AUTH.md).
     timeout:
         Per-request timeout in seconds.
     """

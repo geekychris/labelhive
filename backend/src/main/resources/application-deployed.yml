@@ -1,0 +1,13 @@
+# The profile every real deployment runs (k8s/, cloud-stack deploy/labelhive).
+# OIDC_ISSUER, OIDC_CLIENT_SECRET and DB_PASSWORD are required; the debug
+# header identity cannot be combined with it.
+server:
+  servlet:
+    session:
+      cookie:
+        # Served only through the site's https proxy.
+        secure: true
+
+datalabel:
+  demo:
+    seed-on-startup: false

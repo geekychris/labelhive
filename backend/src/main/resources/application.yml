@@ -4,7 +4,9 @@ spring:
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:datalabel}
     username: ${DB_USER:datalabel}
-    password: ${DB_PASSWORD:datalabel}
+    # No default: the password comes from the environment (a Kubernetes Secret
+    # when deployed, the gitignored .env for local dev; see docs/RUN.md).
+    password: ${DB_PASSWORD}
   jpa:
     open-in-view: false
     hibernate:
@@ -23,10 +25,25 @@ spring:
 
 server:
   port: 8080
+  # The site proxy (and the frontend nginx in front of us) send
+  # X-Forwarded-Host (with any explicit port) and X-Forwarded-Proto=https, so
+  # {baseUrl} in the OIDC redirect URI is the public https name.
+  forward-headers-strategy: framework
+  servlet:
+    session:
+      cookie:
+        same-site: lax
+        http-only: true
 
 datalabel:
-  # When true, security is bypassed and the user is resolved from the X-User-Id header.
-  # Flip to false (or run without the `debug` profile) once real auth is enabled.
-  debug-auth: false
+  # Sign-in is OpenID Connect against the site's cloud-stack login service
+  # (registrationId `cloudstack`). Every profile except `debug` requires
+  # OIDC_ISSUER and fails to start without it. See docs/RUN.md.
+  oidc:
+    issuer: ${OIDC_ISSUER:}
+    # Base URL for server-to-server calls (token, JWKS); defaults to the issuer.
+    backchannel-url: ${OIDC_BACKCHANNEL_URL:}
+    client-id: ${OIDC_CLIENT_ID:labelhive}
+    client-secret: ${OIDC_CLIENT_SECRET:}
   demo:
     seed-on-startup: false
