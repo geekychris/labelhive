@@ -64,8 +64,10 @@ In **debug profile** the server resolves identity from an `X-User-Id` header
 (value can be a numeric id or a username). The SDK adds it for you when you
 pass `user=`.
 
-In **real-auth profile** pass `session_cookie=...` after a successful
-form-login to `/login`.
+Against a **deployed** instance (OpenID Connect sign-in through the site's
+login service) the SDK is not usable yet: the API needs a browser sign-in
+session, which scripts can't obtain (see `docs/AUTH.md`). Use it against a
+local `debug` instance.
 
 ## Type and payload schemas — your dataset contract
 

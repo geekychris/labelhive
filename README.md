@@ -31,12 +31,14 @@ backend/Dockerfile, frontend/Dockerfile, frontend/nginx.conf
 ## Run it
 
 ```sh
-# 1. Postgres (mapped to host port 5433 to avoid clashing with a system Postgres)
+# 1. Postgres (mapped to host port 5433 to avoid clashing with a system Postgres).
+#    Credentials live in .env (gitignored); pick any local password.
+cp .env.example .env && sed -i.bak "s/^DB_PASSWORD=.*/DB_PASSWORD=$(openssl rand -hex 16)/" .env && rm .env.bak
 docker compose up -d
 
-# 2. Backend (with debug auth + demo seeding)
+# 2. Backend: the `debug` profile (no sign-in, demo seeding; reads .env)
 cd backend
-SPRING_PROFILES_ACTIVE=debug DB_PORT=5433 mvn spring-boot:run
+SPRING_PROFILES_ACTIVE=debug mvn spring-boot:run
 
 # 3. Frontend
 cd frontend
@@ -47,9 +49,14 @@ npm run dev
 
 In debug mode the seeder creates an admin user `demo` and three workers
 (`alice`, `bob`, `carol`). The header has a debug user-switcher; the API
-resolves identity from the `X-User-Id` header. Flip
-`datalabel.debug-auth=false` (or drop the `debug` profile) to use real
-form-login + BCrypt auth.
+resolves identity from the `X-User-Id` header. The debug profile is for
+local development only and refuses to start next to a deployment.
+
+**Deployed, LabelHive signs users in with OpenID Connect** against the
+site's cloud-stack login service (roles `admin` and `labeler`; env
+`OIDC_ISSUER`, `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET`, `OIDC_BACKCHANNEL_URL`,
+profile `deployed`). Every profile except `debug` requires it. See
+[docs/AUTH.md](docs/AUTH.md) for the model, the roles and the env vars.
 
 ### Tests
 
@@ -57,9 +64,13 @@ form-login + BCrypt auth.
 cd backend
 mvn test                         # 72 unit tests (no Docker needed)
 
-# Full backend verify including the integration test (needs Postgres):
-docker compose up -d
+# Full backend verify including the integration test (Testcontainers, or
+# the docker-compose Postgres with the credentials from .env):
+mvn verify
+set -a; . ../.env; set +a
 EXTERNAL_POSTGRES_URL=jdbc:postgresql://localhost:5433/datalabel mvn verify
+# Rancher Desktop: if Testcontainers' Ryuk can't mount the socket, add
+#   TESTCONTAINERS_RYUK_DISABLED=true TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
 
 cd ../frontend
 npm test                         # 20 UI tests (vitest + RTL)
@@ -212,8 +223,9 @@ manifest set. devportal allocated a single externally-visible HTTP slot:
 | `k8s-nodeport` | `http` | **30009** — `frontend` Service NodePort |
 | `local` | `http` | **18011** — for `docker run -p 18011:80 labelhive/frontend:latest` |
 
-In-cluster the **frontend nginx** proxies `/api` and `/mcp` to the
-internal `backend` ClusterIP service, and `backend` talks to a ClusterIP
+In-cluster the **frontend nginx** proxies `/api`, `/sse` + `/mcp` (MCP),
+`/oauth2/`, `/login/oauth2/`, `/logout` (OIDC sign-in/out) and
+`/actuator/health` to the internal `backend` ClusterIP service, and `backend` talks to a ClusterIP
 `postgres` service. Only the frontend exposes a NodePort — so the cluster
 surface is minimal and the demo URL is `http://<node-ip>:30009`.
 
@@ -222,25 +234,28 @@ surface is minimal and the demo URL is `http://<node-ip>:30009`.
 docker build -t labelhive/backend:latest  -f backend/Dockerfile  backend
 docker build -t labelhive/frontend:latest -f frontend/Dockerfile frontend
 
-# 2. Apply manifests.
-kubectl apply -f k8s/
+# 2. Secrets (not in git) and the site's OIDC settings (edit k8s/05-config.yaml).
+kubectl apply -f k8s/00-namespace.yaml
+kubectl -n labelhive create secret generic labelhive-db \
+  --from-literal=username=datalabel --from-literal=password="$(openssl rand -hex 24)"
+kubectl -n labelhive create secret generic labelhive-oidc --from-literal=client-secret='<registered secret>'
 
-# 3. Wait for the backend rollout and verify the demo seeder ran.
+# 3. Apply manifests and wait for the backend.
+kubectl apply -f k8s/
 kubectl -n labelhive rollout status deploy/backend
-kubectl -n labelhive port-forward svc/backend 8080:8080 &
-curl -s -H 'X-User-Id: demo' http://localhost:8080/api/jobs | jq 'length'  # → 6 demo jobs
 
 # 4. Open the UI through the allocated NodePort (or any ingress in front of the
 #    frontend service — nginx handles /api and /mcp proxying internally):
 open http://$(minikube ip):30009     # or: open http://localhost:30009 with kind/k3d port-mapped
 ```
 
-The backend pod boots with `SPRING_PROFILES_ACTIVE=debug` and
-`DATALABEL_DEMO_SEED_ON_STARTUP=true`, so a fresh cluster comes up with the
-**demo-seed fixture** (described in `devportal.yaml`'s `runtime.fixtures`
-section): 4 demo users (`demo`/admin, `alice`/`bob`/`carol` workers) and 6
-jobs covering every built-in template type. The seeder is idempotent — it
-no-ops if any jobs already exist, so re-applies are safe.
+The backend pod runs the `deployed` profile: OIDC sign-in against the
+site's login service (see [docs/AUTH.md](docs/AUTH.md)), so the client
+must be registered there with the redirect URI
+`https://<public name>/login/oauth2/code/cloudstack`. It no longer runs the
+debug profile or the demo seeder. The lab's own deployment is cloud-stack's
+`deploy/labelhive` (one NodePort, 31850, behind the site proxy at
+`https://labelhive.<zone>/`).
 
 The asset is already registered as **`labelhive`** (`owner: geekychris`) via:
 
@@ -302,6 +317,7 @@ JobDetail upload section both expose this validator inline.
 ## REST API
 
 ```
+GET    /api/me                               {username, roles, sub, name, email, id, role}; 401 when signed out
 GET    /api/auth/me
 GET    /api/auth/debug-users                 (debug mode only)
 
@@ -375,8 +391,8 @@ or to audit / report against the platform.
 
 ## Future work
 
-- Real auth (the debug toggle exists already — just flip it and use
-  the existing form-login flow). Planned: SSO / OIDC.
+- Token auth for the Python SDK and MCP against a deployed (OIDC) instance;
+  today they need a browser session (docs/AUTH.md).
 - Bounding-box drawing UI (canvas-based).
 - Worker payouts / SLA tracking.
 - Krippendorff's α as an alternative agreement statistic.

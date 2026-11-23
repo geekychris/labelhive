@@ -26,3 +26,10 @@ backend/data/
 # OS / editor
 *.swp
 .AppleDouble
+
+# TypeScript incremental build state (rewritten by every `tsc -b`)
+frontend/tsconfig.tsbuildinfo
+frontend/*.tsbuildinfo
+
+# Local secrets for docker-compose / the debug profile (copy .env.example)
+.env

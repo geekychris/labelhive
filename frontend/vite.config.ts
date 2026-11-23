@@ -9,6 +9,10 @@ export default defineConfig({
       '/api': 'http://localhost:8080',
       '/sse': 'http://localhost:8080',
       '/mcp': 'http://localhost:8080',
+      '/oauth2': 'http://localhost:8080',
+      '/login/oauth2': 'http://localhost:8080',
+      '/logout': 'http://localhost:8080',
+      '/actuator/health': 'http://localhost:8080',
     },
   },
 });

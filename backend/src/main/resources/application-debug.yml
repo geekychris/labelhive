@@ -1,5 +1,14 @@
+# Local development only: no sign-in, identity from the X-User-Id header (or
+# the seeded `demo` admin). The app refuses to start with this profile when
+# OIDC_ISSUER is set or the `deployed`/`prod` profile is active
+# (DebugSecurityConfig).
+spring:
+  config:
+    # DB_PASSWORD (and friends) from the gitignored .env that docker-compose
+    # also reads; run from backend/ or the repo root.
+    import: "optional:file:../.env[.properties],optional:file:.env[.properties]"
+
 datalabel:
-  debug-auth: true
   demo:
     seed-on-startup: true
 

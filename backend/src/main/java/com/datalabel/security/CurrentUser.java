@@ -3,21 +3,34 @@ package com.datalabel.security;
 import com.datalabel.domain.AppUser;
 import com.datalabel.repository.AppUserRepository;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.http.HttpStatus;
 
+/**
+ * The app-side user behind a request. With OIDC (every profile but {@code debug})
+ * it is the user record linked to the session's {@code sub}; the {@code X-User-Id}
+ * header is ignored. Only the {@code debug} profile (local development, which
+ * {@link DebugSecurityConfig} refuses to combine with a deployment) reads the header.
+ */
 @Component
 public class CurrentUser {
 
     private final AppUserRepository users;
     private final boolean debugAuth;
 
-    public CurrentUser(AppUserRepository users,
-                       @Value("${datalabel.debug-auth:false}") boolean debugAuth) {
+    @Autowired
+    public CurrentUser(AppUserRepository users, Environment env) {
+        this(users, env.acceptsProfiles(Profiles.of("debug")));
+    }
+
+    CurrentUser(AppUserRepository users, boolean debugAuth) {
         this.users = users;
         this.debugAuth = debugAuth;
     }
@@ -43,8 +56,11 @@ public class CurrentUser {
             }
         }
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) return null;
-        return users.findByUsername(auth.getName()).orElse(null);
+        if (auth == null || !auth.isAuthenticated()) return null;
+        if (auth.getPrincipal() instanceof OidcUser oidc) {
+            return users.findByOidcSubject(oidc.getSubject()).orElse(null);
+        }
+        return null;
     }
 
     public boolean isDebugMode() { return debugAuth; }

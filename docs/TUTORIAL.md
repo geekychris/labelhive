@@ -121,10 +121,10 @@ The seeded users are:
 | `demo` | ADMIN | Building & monitoring jobs |
 | `alice`, `bob`, `carol` | WORKER | Labeling |
 
-Production deployments should drop the `debug` profile or set
-`datalabel.debug-auth=false` — the same backend then enforces real form-login
-+ BCrypt-hashed passwords. Until you do that, **do not expose the NodePort
-externally**.
+These users exist only in the local `debug` profile. Deployments run the
+`deployed` profile, which signs users in with OpenID Connect against the
+site's login service (roles `admin` and `labeler`; see [AUTH.md](AUTH.md));
+the debug profile refuses to start next to it.
 
 ---
 

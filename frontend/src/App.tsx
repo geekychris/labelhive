@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link, Navigate, Route, Routes } from 'react-router-dom';
-import { api } from './api/client';
+import { api, signOut } from './api/client';
 import { useAuth } from './auth/AuthContext';
 import { RequireAdmin } from './auth/RequireAdmin';
 import { Concerns } from './pages/admin/Concerns';
@@ -64,8 +64,17 @@ export default function App() {
               </select>
             )}
             {me?.authenticated ? (
-              <span className="text-slate-200">{me.username} <span className="text-xs text-slate-400">{me.role}</span></span>
+              <span className="text-slate-200" title={me.name ?? me.username}>
+                {me.username}{' '}
+                <span className="text-xs text-slate-400">{me.roles?.length ? me.roles.join(', ') : me.role}</span>
+              </span>
             ) : <span className="text-slate-500">not signed in</span>}
+            {me?.authenticated && !me.debug && (
+              <button type="button" onClick={signOut}
+                className="ml-2 text-xs text-slate-300 hover:text-white border border-slate-700 rounded px-2 py-1">
+                Sign out
+              </button>
+            )}
             {me?.debug && <span className="text-[10px] uppercase bg-amber-400/90 text-slate-900 px-1.5 py-0.5 rounded font-medium">debug</span>}
           </div>
         </div>

@@ -69,16 +69,24 @@ spec:
         default: datalabel
         description: Postgres username.
       - name: DB_PASSWORD
-        default: datalabel
-        description: Postgres password (dev default — override in real environments).
+        description: Postgres password. No default; a Secret when deployed, .env locally.
       - name: SPRING_PROFILES_ACTIVE
-        default: debug
-        description: Activates the debug profile (relaxed auth + demo seeder on startup).
-      - name: DATALABEL_DEBUG_AUTH
-        default: "true"
-        description: When true the backend resolves identity from X-User-Id (no real login).
+        default: deployed
+        description: |
+          `deployed` = OpenID Connect sign-in (needs the OIDC_* vars). `debug` = local
+          development only (X-User-Id identity + demo seeder); refuses to start when
+          OIDC_ISSUER is set or the deployed/prod profile is active.
+      - name: OIDC_ISSUER
+        description: The site's login service, e.g. https://auth.hitorro.com. Required outside `debug`.
+      - name: OIDC_BACKCHANNEL_URL
+        description: Base URL for token/JWKS calls (default OIDC_ISSUER).
+      - name: OIDC_CLIENT_ID
+        default: labelhive
+        description: The OIDC client id.
+      - name: OIDC_CLIENT_SECRET
+        description: The OIDC client secret (Secret labelhive-oidc, key client-secret).
       - name: DATALABEL_DEMO_SEED_ON_STARTUP
-        default: "true"
+        default: "false"
         description: |
           When true, populates a fresh database with demo users + 6 jobs covering
           every template type — the demo-seed fixture (see docs/RUN.md).
