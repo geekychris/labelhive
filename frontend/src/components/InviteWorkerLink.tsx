@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { api } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 
 /**
@@ -33,6 +35,18 @@ export function InviteWorkerLink({ jobId }: { jobId: number }) {
   };
 
   const workerOptions = (debugUsers ?? []).filter(u => u.role === 'WORKER');
+
+  // Email: shown only when the server says mail is set up.
+  const mail = useQuery({ queryKey: ['mail-status'], queryFn: api.mailStatus, retry: false, staleTime: 60_000 });
+  const [to, setTo] = useState('');
+  const [note, setNote] = useState('');
+  const send = useMutation({
+    mutationFn: () => api.inviteByEmail(jobId, to.trim(), note.trim() || undefined),
+    onSuccess: () => { setTo(''); setNote(''); },
+  });
+  const sendError = send.error instanceof Error
+    ? (() => { try { return JSON.parse(send.error.message.replace(/^\d+: /, '')).error as string; } catch { return send.error.message; } })()
+    : null;
 
   return (
     <section className="bg-white rounded-lg border border-slate-200 shadow-sm p-5 space-y-3">
@@ -81,6 +95,34 @@ export function InviteWorkerLink({ jobId }: { jobId: number }) {
           {copied ? 'Copied!' : 'Copy'}
         </button>
       </div>
+
+      {mail.data?.enabled && (
+        <form className="space-y-2 border-t border-slate-100 pt-3"
+              onSubmit={e => { e.preventDefault(); if (to.trim()) send.mutate(); }}>
+          <div className="text-sm text-slate-700">Or email the link</div>
+          <div className="flex items-center gap-2">
+            <input type="email" required aria-label="Email address"
+                   className="flex-1 rounded border border-slate-300 p-2 text-sm"
+                   value={to} onChange={e => { setTo(e.target.value); send.reset(); }}
+                   placeholder="name@example.com" />
+            <button type="submit" disabled={send.isPending || !to.trim()}
+                    className="px-3 py-2 rounded bg-indigo-600 text-white font-medium text-sm hover:bg-indigo-500 disabled:opacity-50">
+              {send.isPending ? 'Sending…' : 'Send invite'}
+            </button>
+          </div>
+          <textarea aria-label="Note" maxLength={1000} rows={2}
+                    className="w-full rounded border border-slate-300 p-2 text-sm"
+                    value={note} onChange={e => setNote(e.target.value)}
+                    placeholder="Optional note for the email" />
+          <p className="text-xs text-slate-500">
+            The email links to this job. It doesn't give access: the person signs in with the
+            site's sign-in, so give them LabelHive on the site's Access page first.
+          </p>
+          {send.isSuccess && <p role="status" className="text-sm text-emerald-700">Invite sent to {send.data.to}.</p>}
+          {sendError && <p role="alert" className="text-sm text-red-700">{sendError}</p>}
+        </form>
+      )}
+
     </section>
   );
 }

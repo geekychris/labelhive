@@ -108,6 +108,9 @@ export const api = {
   validateDataset: (type: string, body: { config: any; units: any[] }) =>
                      http<DatasetValidation>('POST', `/api/templates/${type}/validate-dataset`, body),
   exportJob:       (jobId: number) => http<any>('GET', `/api/jobs/${jobId}/export`),
+  mailStatus:      () => http<{ enabled: boolean; reason?: string }>('GET', '/api/mail/status'),
+  inviteByEmail:   (jobId: number, to: string, note?: string) =>
+                     http<{ sent: boolean; to: string }>('POST', `/api/jobs/${jobId}/invite`, { to, note }),
 
   listJobs:   () => http<Job[]>('GET', '/api/jobs'),
   cloneJob:   (id: number, opts?: { includeUnits?: boolean; includeGold?: boolean }) =>

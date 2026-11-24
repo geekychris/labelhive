@@ -36,6 +36,22 @@ server:
         http-only: true
 
 datalabel:
+  # Email (README, "Email"): invites to a job, and a notice when a job is
+  # finished. Off unless a host is set. Every value can come from the
+  # environment (LABELHIVE_MAIL_HOST, ...). A password, if the server wants
+  # one, is read from password-file for each send, never from configuration.
+  mail:
+    host: ${LABELHIVE_MAIL_HOST:}
+    port: ${LABELHIVE_MAIL_PORT:0}
+    tls: ${LABELHIVE_MAIL_TLS:starttls}
+    username: ${LABELHIVE_MAIL_USERNAME:}
+    from: ${LABELHIVE_MAIL_FROM:}
+    from-name: ${LABELHIVE_MAIL_FROM_NAME:LabelHive}
+    reply-to: ${LABELHIVE_MAIL_REPLY_TO:}
+    password-file: ${LABELHIVE_MAIL_PASSWORD_FILE:/var/run/labelhive/smtp/password}
+    public-url: ${LABELHIVE_PUBLIC_URL:}
+    site-name: ${LABELHIVE_SITE_NAME:}
+    notify-to: ${LABELHIVE_MAIL_NOTIFY_TO:}
   # Sign-in is OpenID Connect against the site's cloud-stack login service
   # (registrationId `cloudstack`). Every profile except `debug` requires
   # OIDC_ISSUER and fails to start without it. See docs/RUN.md.

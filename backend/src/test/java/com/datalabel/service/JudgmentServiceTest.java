@@ -120,6 +120,35 @@ class JudgmentServiceTest {
         verify(promotion).maybePromote(any(Unit.class), any(Job.class));
     }
 
+    @Test void announcesTheJobFinishedOnlyWhenNoOpenNonGoldUnitIsLeft() {
+        org.springframework.context.ApplicationEventPublisher events = mock(org.springframework.context.ApplicationEventPublisher.class);
+        svc.setEvents(events);
+        Unit u = unit(null);
+        u.setJudgmentCount(2);
+        when(units.findById(100L)).thenReturn(Optional.of(u));
+        when(judgments.findByUnitIdAndUserId(anyLong(), anyLong())).thenReturn(Optional.empty());
+        Unit other = unit(null);
+        other.setId(101L);
+        when(units.findByJobIdAndStatus(1L, UnitStatus.OPEN)).thenReturn(List.of(other));
+
+        svc.submit(100L, 10L, j("{\"choice\":\"yes\"}"), 1);
+        verify(events, never()).publishEvent(any(Object.class));
+
+        // Only a gold unit is still open: the job's real work is done.
+        Unit gold = unit(j("{\"choice\":\"yes\"}"));
+        gold.setId(102L);
+        Unit last = unit(null);
+        last.setId(103L);
+        last.setJudgmentCount(2);
+        when(units.findById(103L)).thenReturn(Optional.of(last));
+        when(units.findByJobIdAndStatus(1L, UnitStatus.OPEN)).thenReturn(List.of(gold, last));
+        when(units.countByJobId(1L)).thenReturn(3L);
+        svc.submit(103L, 11L, j("{\"choice\":\"yes\"}"), 1);
+        ArgumentCaptor<Object> ev = ArgumentCaptor.forClass(Object.class);
+        verify(events).publishEvent(ev.capture());
+        assertThat(ev.getValue()).isEqualTo(new com.datalabel.mail.JobMail.JobFinished(1L, null, 3L));
+    }
+
     @Test void rejectsDuplicateJudgmentForSameUser() {
         when(units.findById(100L)).thenReturn(Optional.of(unit(null)));
         when(judgments.findByUnitIdAndUserId(100L, 10L))
