@@ -1,5 +1,9 @@
 package com.datalabel.service;
 
+import com.datalabel.mail.JobMail;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+
 import com.datalabel.domain.*;
 import com.datalabel.repository.JobRepository;
 import com.datalabel.repository.JudgmentRepository;
@@ -21,6 +25,12 @@ public class JudgmentService {
     private final TemplateRegistry templates;
     private final TrustService trust;
     private final GoldPromotionService promotion;
+
+    /** Announces a finished job (JobMail emails it after commit); absent in plain unit tests. */
+    private ApplicationEventPublisher events;
+
+    @Autowired(required = false)
+    public void setEvents(ApplicationEventPublisher events) { this.events = events; }
 
     public JudgmentService(JudgmentRepository judgments, UnitRepository units, JobRepository jobs,
                            TemplateRegistry templates, TrustService trust, GoldPromotionService promotion) {
@@ -72,6 +82,13 @@ public class JudgmentService {
             }
         }
         units.save(unit);
+        if (!wasGold && unit.getStatus() == UnitStatus.COMPLETED && events != null) {
+            boolean anyOpen = units.findByJobIdAndStatus(job.getId(), UnitStatus.OPEN).stream()
+                    .anyMatch(u -> !u.isGold() && !u.getId().equals(unit.getId()));
+            if (!anyOpen) {
+                events.publishEvent(new JobMail.JobFinished(job.getId(), job.getName(), units.countByJobId(job.getId())));
+            }
+        }
 
         if (wasGold) trust.recordGoldOutcome(userId, job.getId(), goldCorrect);
         return j;

@@ -373,6 +373,33 @@ GET    /api/admin/jobs/{jobId}/workers/{userId}/judgments
   threshold, the consensus is promoted as gold and attributed to the first
   contributing worker whose answer matched.
 
+## Email
+
+LabelHive can send two emails. Both are off until a mail server is set.
+
+- **Job invites.** On a job's page, **Invite a worker → Or email the link** sends someone the
+  job's worker link and its instructions link, with an optional note (`POST /api/jobs/{id}/invite`
+  `{to, note}`; admins only; only an active job). An invite doesn't grant access: the person signs
+  in with the site's sign-in, and an admin gives them LabelHive (labeler) on the site's Access page.
+- **Job finished.** When a job's last open non-gold unit gets its judgments, `notify-to` hears about
+  it, with links to the reports and the export.
+
+Settings (`datalabel.mail.*` in `application.yml`, or the environment):
+
+| Variable | Meaning |
+|---|---|
+| `LABELHIVE_MAIL_HOST`, `LABELHIVE_MAIL_PORT`, `LABELHIVE_MAIL_TLS` | the SMTP server; TLS `starttls` (default, required, certificate checked), `tls`, or `none` (a local catcher such as Mailpit, without an account) |
+| `LABELHIVE_MAIL_USERNAME` | the account, if the server wants one; its password is read from `LABELHIVE_MAIL_PASSWORD_FILE` for each send (default `/var/run/labelhive/smtp/password`) |
+| `LABELHIVE_MAIL_FROM`, `LABELHIVE_MAIL_FROM_NAME`, `LABELHIVE_MAIL_REPLY_TO` | the sender (name defaults to "LabelHive") |
+| `LABELHIVE_PUBLIC_URL` | the app's public address, for the links (required) |
+| `LABELHIVE_SITE_NAME` | shown in subjects ("Belmont") |
+| `LABELHIVE_MAIL_NOTIFY_TO` | one address for job-finished notices; empty: none |
+
+`GET /api/mail/status` says whether mail is on and, if not, why. Sends are limited to 30 an hour
+and 5 to one address. Every header value is refused if it holds a line break, a recipient must be
+one plain address, and job names in subjects lose control characters. In the home lab the sites
+send through Google Workspace's SMTP relay without an account (cloud-stack `docs/EMAIL.md`).
+
 ## MCP interface
 
 The backend exposes a Model Context Protocol server (Spring AI WebMVC
